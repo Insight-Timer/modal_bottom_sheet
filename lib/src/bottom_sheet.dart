@@ -49,7 +49,7 @@ class ModalBottomSheet extends StatefulWidget {
     required this.expanded,
     required this.onClosing,
     required this.child,
-  })   : assert(enableDrag != null),
+  })  : assert(enableDrag != null),
         assert(onClosing != null),
         assert(child != null),
         super(key: key);
@@ -267,12 +267,25 @@ class _ModalBottomSheetState extends State<ModalBottomSheet>
     if (!_scrollController.hasClients) return;
     //Check if there is more than 1 attached ScrollController e.g. swiping page in PageView
     // ignore: invalid_use_of_protected_member
-    if (_scrollController.positions.length > 1) return;
+    //if (_scrollController.positions.length > 1) return;
 
     if (_scrollController !=
         Scrollable.of(notification.context!)!.widget.controller) return;
 
-    final scrollPosition = _scrollController.position;
+    //final scrollPosition = _scrollController.position;
+
+    //I'm not sure if this is the correct approach to fix but this seems to work
+    ScrollPosition scrollPosition;
+    // ignore: invalid_use_of_protected_member
+    if (_scrollController.positions.length > 1) {
+      // ignore: invalid_use_of_protected_member
+      scrollPosition = _scrollController.positions
+          .firstWhere((p) => p.isScrollingNotifier.value,
+              // ignore: invalid_use_of_protected_member
+              orElse: () => _scrollController.positions.first);
+    } else {
+      scrollPosition = _scrollController.position;
+    }
 
     if (scrollPosition.axis == Axis.horizontal) return;
 
@@ -488,6 +501,7 @@ PointerDeviceKind defaultPointerDeviceKind(BuildContext context) {
       return PointerDeviceKind.mouse;
     case TargetPlatform.fuchsia:
       return PointerDeviceKind.unknown;
+    default:
+      return PointerDeviceKind.unknown;
   }
-  return PointerDeviceKind.unknown;
 }

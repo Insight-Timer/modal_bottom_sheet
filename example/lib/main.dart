@@ -11,6 +11,7 @@ import 'modals/modal_fit.dart';
 import 'modals/modal_inside_modal.dart';
 import 'modals/modal_will_scope.dart';
 import 'modals/modal_with_navigator.dart';
+import 'modals/modal_with_navigator_with_nested_navigation.dart';
 import 'modals/modal_with_nested_scroll.dart';
 import 'modals/modal_with_scroll.dart';
 import 'modals/modal_with_page_view.dart';
@@ -193,6 +194,16 @@ class _MyHomePageState extends State<MyHomePage> {
                               context: context,
                               backgroundColor: Colors.transparent,
                               builder: (context) => ModalWithNavigator(),
+                            )),
+                    ListTile(
+                        title: Text(
+                            'Cupertino Modal with inside navigation with nested navigation'),
+                        onTap: () => showCupertinoModalBottomSheet(
+                              expand: false,
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) =>
+                                  ModalWithNavigatorAndNestedNavigation(),
                             )),
                     ListTile(
                         title:
