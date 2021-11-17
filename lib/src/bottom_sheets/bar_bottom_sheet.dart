@@ -80,7 +80,7 @@ Future<T?> showBarModalBottomSheet<T>({
   bool enableDrag = true,
   Widget? topControl,
   Duration? duration,
-  VoidCallback? onClosing,
+  VoidCallback? onDismissed,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(context != null);
@@ -110,7 +110,7 @@ Future<T?> showBarModalBottomSheet<T>({
     enableDrag: enableDrag,
     animationCurve: animationCurve,
     duration: duration,
-    onClosing: onClosing,
+    onClosing: onDismissed,
     shouldClose: shouldClose,
   ));
   return result;

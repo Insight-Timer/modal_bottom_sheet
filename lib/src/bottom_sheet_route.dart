@@ -254,7 +254,7 @@ Future<T?> showCustomModalBottomSheet<T>({
   bool isDismissible = true,
   bool enableDrag = true,
   Duration? duration,
-  VoidCallback? onClosing,
+  VoidCallback? onDismissed,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(context != null);
@@ -281,7 +281,7 @@ Future<T?> showCustomModalBottomSheet<T>({
     enableDrag: enableDrag,
     animationCurve: animationCurve,
     duration: duration,
-    onClosing: onClosing,
+    onClosing: onDismissed,
     shouldClose: shouldClose,
   ));
   return result;

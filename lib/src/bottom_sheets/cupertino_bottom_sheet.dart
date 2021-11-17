@@ -86,7 +86,7 @@ Future<T?> showCupertinoModalBottomSheet<T>({
   RouteSettings? settings,
   Color? transitionBackgroundColor,
   BoxShadow? shadow,
-  VoidCallback? onClosing,
+  VoidCallback? onDismissed,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(context != null);
@@ -124,7 +124,7 @@ Future<T?> showCupertinoModalBottomSheet<T>({
       duration: duration,
       settings: settings,
       transitionBackgroundColor: transitionBackgroundColor ?? Colors.black,
-      onClosing: onClosing,
+      onClosing: onDismissed,
       shouldClose: shouldClose,
     ),
   );
