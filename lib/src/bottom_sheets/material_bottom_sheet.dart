@@ -31,7 +31,8 @@ Future<T?> showMaterialModalBottomSheet<T>({
   assert(enableDrag != null);
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
-  final result = await Navigator.of(context, rootNavigator: useRootNavigator).push(ModalBottomSheetRoute<T>(
+  final result = await Navigator.of(context, rootNavigator: useRootNavigator)
+      .push(ModalBottomSheetRoute<T>(
     builder: builder,
     closeProgressThreshold: closeProgressThreshold,
     containerBuilder: _materialContainerBuilder(
@@ -59,17 +60,29 @@ Future<T?> showMaterialModalBottomSheet<T>({
 
 //Default container builder is the Material Appearance
 WidgetWithChildBuilder _materialContainerBuilder(BuildContext context,
-    {Color? backgroundColor, double? elevation, ThemeData? theme, Clip? clipBehavior, ShapeBorder? shape}) {
+    {Color? backgroundColor,
+    double? elevation,
+    ThemeData? theme,
+    Clip? clipBehavior,
+    ShapeBorder? shape}) {
   final bottomSheetTheme = Theme.of(context).bottomSheetTheme;
-  final color = backgroundColor ?? bottomSheetTheme.modalBackgroundColor ?? bottomSheetTheme.backgroundColor;
+  final color = backgroundColor ??
+      bottomSheetTheme.modalBackgroundColor ??
+      bottomSheetTheme.backgroundColor;
   final _elevation = elevation ?? bottomSheetTheme.elevation ?? 0.0;
   final _shape = shape ?? bottomSheetTheme.shape;
-  final _clipBehavior = clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
+  final _clipBehavior =
+      clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
 
-  final result = (context, animation, child) =>
-      Material(color: color, elevation: _elevation, shape: _shape, clipBehavior: _clipBehavior, child: child);
+  final result = (context, animation, child) => Material(
+      color: color,
+      elevation: _elevation,
+      shape: _shape,
+      clipBehavior: _clipBehavior,
+      child: child);
   if (theme != null) {
-    return (context, animation, child) => Theme(data: theme, child: result(context, animation, child));
+    return (context, animation, child) =>
+        Theme(data: theme, child: result(context, animation, child));
   } else {
     return result;
   }
