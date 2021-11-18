@@ -9,7 +9,8 @@ class AvatarBottomSheet extends StatelessWidget {
   final Widget child;
   final Animation<double> animation;
 
-  const AvatarBottomSheet({Key? key, required  this.child, required this.animation})
+  const AvatarBottomSheet(
+      {Key? key, required this.child, required this.animation})
       : super(key: key);
 
   @override
