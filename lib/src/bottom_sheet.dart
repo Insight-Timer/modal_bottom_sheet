@@ -195,17 +195,6 @@ class _ModalBottomSheetState extends State<ModalBottomSheet>
 
     final progress = primaryDelta / (_childHeight ?? primaryDelta);
 
-    if (widget.shouldClose != null && hasReachedWillPopThreshold) {
-      _cancelClose();
-      final canClose = await shouldClose();
-      if (canClose) {
-        _close();
-        return;
-      } else {
-        _cancelClose();
-      }
-    }
-
     // Bounce top
     final bounce = widget.bounce == true;
     final shouldBounce = _bounceDragController.value > 0;
