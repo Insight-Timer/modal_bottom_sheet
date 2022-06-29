@@ -20,15 +20,10 @@ Future<T?> showMaterialModalBottomSheet<T>({
   bool isDismissible = true,
   bool enableDrag = true,
   Duration? duration,
+  RouteSettings? settings,
   VoidCallback? onDismissed,
   Future<bool> Function()? shouldClose,
 }) async {
-  assert(context != null);
-  assert(builder != null);
-  assert(expand != null);
-  assert(useRootNavigator != null);
-  assert(isDismissible != null);
-  assert(enableDrag != null);
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
   final result = await Navigator.of(context, rootNavigator: useRootNavigator)
@@ -52,6 +47,7 @@ Future<T?> showMaterialModalBottomSheet<T>({
     enableDrag: enableDrag,
     animationCurve: animationCurve,
     duration: duration,
+    settings: settings,
     onClosing: onDismissed,
     shouldClose: shouldClose,
   ));

@@ -14,6 +14,7 @@ class BarBottomSheet extends StatelessWidget {
   final Clip? clipBehavior;
   final double? elevation;
   final ShapeBorder? shape;
+  final SystemUiOverlayStyle? overlayStyle;
 
   const BarBottomSheet({
     Key? key,
@@ -22,12 +23,13 @@ class BarBottomSheet extends StatelessWidget {
     this.clipBehavior,
     this.shape,
     this.elevation,
+    this.overlayStyle,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: overlayStyle ?? SystemUiOverlayStyle.light,
       child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -88,15 +90,11 @@ Future<T?> showBarModalBottomSheet<T>({
   bool enableDrag = true,
   Widget? topControl,
   Duration? duration,
+  RouteSettings? settings,
+  SystemUiOverlayStyle? overlayStyle,
   VoidCallback? onDismissed,
   Future<bool> Function()? shouldClose,
 }) async {
-  assert(context != null);
-  assert(builder != null);
-  assert(expand != null);
-  assert(useRootNavigator != null);
-  assert(isDismissible != null);
-  assert(enableDrag != null);
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
   final result = await Navigator.of(context, rootNavigator: useRootNavigator)
@@ -110,6 +108,7 @@ Future<T?> showBarModalBottomSheet<T>({
       clipBehavior: clipBehavior,
       shape: shape,
       elevation: elevation,
+      overlayStyle: overlayStyle,
     ),
     secondAnimationController: secondAnimation,
     expanded: expand,
@@ -119,6 +118,7 @@ Future<T?> showBarModalBottomSheet<T>({
     enableDrag: enableDrag,
     animationCurve: animationCurve,
     duration: duration,
+    settings: settings,
     onClosing: onDismissed,
     shouldClose: shouldClose,
   ));
