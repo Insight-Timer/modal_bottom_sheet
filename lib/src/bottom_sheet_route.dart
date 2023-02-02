@@ -16,6 +16,8 @@ class _ModalBottomSheet<T> extends StatefulWidget {
     this.expanded = false,
     this.enableDrag = true,
     this.animationCurve,
+    this.onClosing,
+    this.shouldClose,
   }) : super(key: key);
 
   final double? closeProgressThreshold;
@@ -25,6 +27,8 @@ class _ModalBottomSheet<T> extends StatefulWidget {
   final bool enableDrag;
   final AnimationController? secondAnimationController;
   final Curve? animationCurve;
+  final VoidCallback? onClosing;
+  final Future<bool> Function()? shouldClose;
 
   @override
   _ModalBottomSheetState<T> createState() => _ModalBottomSheetState<T>();
@@ -96,14 +100,16 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
                 expanded: widget.route.expanded,
                 containerBuilder: widget.route.containerBuilder,
                 animationController: widget.route._animationController!,
-                shouldClose: widget.route._hasScopedWillPopCallback
-                    ? () async {
-                        final willPop = await widget.route.willPop();
-                        return willPop != RoutePopDisposition.doNotPop;
-                      }
-                    : null,
+                shouldClose: widget.shouldClose ??
+                    (widget.route._hasScopedWillPopCallback
+                        ? () async {
+                            final willPop = await widget.route.willPop();
+                            return willPop != RoutePopDisposition.doNotPop;
+                          }
+                        : null),
                 onClosing: () {
                   if (widget.route.isCurrent) {
+                    widget.onClosing?.call();
                     Navigator.of(context).pop();
                   }
                 },
@@ -138,6 +144,8 @@ class ModalBottomSheetRoute<T> extends PageRoute<T> {
     this.animationCurve,
     this.duration,
     RouteSettings? settings,
+    this.onClosing,
+    this.shouldClose,
   }) : super(settings: settings);
 
   final double? closeProgressThreshold;
@@ -149,6 +157,8 @@ class ModalBottomSheetRoute<T> extends PageRoute<T> {
   final bool isDismissible;
   final bool enableDrag;
   final ScrollController? scrollController;
+  final VoidCallback? onClosing;
+  final Future<bool> Function()? shouldClose;
 
   final Duration? duration;
 
@@ -160,13 +170,13 @@ class ModalBottomSheetRoute<T> extends PageRoute<T> {
 
   @override
   bool get barrierDismissible => isDismissible;
-  
+
   @override
   bool get maintainState => false; //idk but needed
 
   @override
   bool get opaque => false; //transparency
-  
+
   @override
   final String? barrierLabel;
 
@@ -203,6 +213,8 @@ class ModalBottomSheetRoute<T> extends PageRoute<T> {
         bounce: bounce,
         enableDrag: enableDrag,
         animationCurve: animationCurve,
+        onClosing: onClosing,
+        shouldClose: shouldClose,
       ),
     );
     return bottomSheet;
@@ -244,6 +256,8 @@ Future<T?> showCustomModalBottomSheet<T>({
   bool enableDrag = true,
   Duration? duration,
   RouteSettings? settings,
+  VoidCallback? onDismissed,
+  Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
@@ -268,6 +282,8 @@ Future<T?> showCustomModalBottomSheet<T>({
     animationCurve: animationCurve,
     duration: duration,
     settings: settings,
+    onClosing: onDismissed,
+    shouldClose: shouldClose,
   ));
   return result;
 }

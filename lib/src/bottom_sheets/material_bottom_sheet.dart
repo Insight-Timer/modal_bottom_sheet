@@ -21,6 +21,8 @@ Future<T?> showMaterialModalBottomSheet<T>({
   bool enableDrag = true,
   Duration? duration,
   RouteSettings? settings,
+  VoidCallback? onDismissed,
+  Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
@@ -46,6 +48,8 @@ Future<T?> showMaterialModalBottomSheet<T>({
     animationCurve: animationCurve,
     duration: duration,
     settings: settings,
+    onClosing: onDismissed,
+    shouldClose: shouldClose,
   ));
   return result;
 }

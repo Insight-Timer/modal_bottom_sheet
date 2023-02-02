@@ -92,6 +92,8 @@ Future<T?> showCupertinoModalBottomSheet<T>({
   Color? transitionBackgroundColor,
   BoxShadow? shadow,
   SystemUiOverlayStyle? overlayStyle,
+  VoidCallback? onDismissed,
+  Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
   final hasMaterialLocalizations =
@@ -128,7 +130,9 @@ Future<T?> showCupertinoModalBottomSheet<T>({
         duration: duration,
         settings: settings,
         transitionBackgroundColor: transitionBackgroundColor ?? Colors.black,
-        overlayStyle: overlayStyle),
+        overlayStyle: overlayStyle,
+        onClosing: onDismissed,
+        shouldClose: shouldClose),
   );
   return result;
 }
@@ -167,6 +171,8 @@ class CupertinoModalBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
     this.transitionBackgroundColor,
     this.topRadius = _kDefaultTopRadius,
     this.previousRouteAnimationCurve,
+    VoidCallback? onClosing,
+    Future<bool> Function()? shouldClose,
     this.overlayStyle,
   }) : super(
           closeProgressThreshold: closeProgressThreshold,
@@ -183,6 +189,8 @@ class CupertinoModalBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
           settings: settings,
           animationCurve: animationCurve,
           duration: duration,
+          onClosing: onClosing,
+          shouldClose: shouldClose,
         );
 
   @override
