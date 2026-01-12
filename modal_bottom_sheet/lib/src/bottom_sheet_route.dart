@@ -8,7 +8,7 @@ const Duration _bottomSheetDuration = Duration(milliseconds: 400);
 
 class _ModalBottomSheet<T> extends StatefulWidget {
   const _ModalBottomSheet({
-    Key? key,
+    super.key,
     this.closeProgressThreshold,
     required this.route,
     this.secondAnimationController,
@@ -18,7 +18,7 @@ class _ModalBottomSheet<T> extends StatefulWidget {
     this.animationCurve,
     this.onClosing,
     this.shouldClose,
-  }) : super(key: key);
+  });
 
   final double? closeProgressThreshold;
   final ModalSheetRoute<T> route;
@@ -143,11 +143,10 @@ class ModalSheetRoute<T> extends PageRoute<T> {
     this.bounce = false,
     this.animationCurve,
     Duration? duration,
-    RouteSettings? settings,
+    super.settings,
     this.onClosing,
     this.shouldClose,
-  })  : duration = duration ?? _bottomSheetDuration,
-        super(settings: settings);
+  })  : duration = duration ?? _bottomSheetDuration;
 
   final double? closeProgressThreshold;
   final WidgetWithChildBuilder? containerBuilder;
@@ -190,12 +189,13 @@ class ModalSheetRoute<T> extends PageRoute<T> {
   AnimationController createAnimationController() {
     assert(_animationController == null);
     _animationController = ModalBottomSheet.createAnimationController(
-      navigator!.overlay!,
+      navigator!,
       duration: transitionDuration,
     );
     return _animationController!;
   }
 
+  // ignore: deprecated_member_use
   bool get _hasScopedWillPopCallback => hasScopedWillPopCallback;
 
   @override

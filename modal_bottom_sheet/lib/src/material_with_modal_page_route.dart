@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ModalBottomSheetRoute;
 
-import '../modal_bottom_sheet.dart' as modal_bottom_sheet;
+import '../modal_bottom_sheet.dart';
+import 'bottom_sheet_route.dart';
 
 class MaterialWithModalsPageRoute<T> extends MaterialPageRoute<T> {
   /// Construct a MaterialPageRoute whose contents are defined by [builder].
@@ -9,17 +10,13 @@ class MaterialWithModalsPageRoute<T> extends MaterialPageRoute<T> {
   /// The values of [builder], [maintainState], and [fullScreenDialog] must not
   /// be null.
   MaterialWithModalsPageRoute({
-    required WidgetBuilder builder,
-    RouteSettings? settings,
-    bool maintainState = true,
-    bool fullscreenDialog = false,
-  }) : super(
-            settings: settings,
-            fullscreenDialog: fullscreenDialog,
-            builder: builder,
-            maintainState: maintainState);
+    required super.builder,
+    super.settings,
+    super.maintainState,
+    super.fullscreenDialog,
+  });
 
-  modal_bottom_sheet.ModalSheetRoute? _nextModalRoute;
+  ModalSheetRoute? _nextModalRoute;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
@@ -28,12 +25,12 @@ class MaterialWithModalsPageRoute<T> extends MaterialPageRoute<T> {
         (nextRoute is CupertinoPageRoute && !nextRoute.fullscreenDialog) ||
         (nextRoute is MaterialWithModalsPageRoute &&
             !nextRoute.fullscreenDialog) ||
-        (nextRoute is modal_bottom_sheet.ModalSheetRoute);
+        (nextRoute is ModalSheetRoute);
   }
 
   @override
   void didChangeNext(Route? nextRoute) {
-    if (nextRoute is modal_bottom_sheet.ModalSheetRoute) {
+    if (nextRoute is ModalSheetRoute) {
       _nextModalRoute = nextRoute;
     }
 

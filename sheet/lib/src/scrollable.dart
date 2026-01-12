@@ -43,7 +43,7 @@ class SheetScrollable extends StatefulWidget {
   ///
   /// The [axisDirection] and [viewportBuilder] arguments must not be null.
   const SheetScrollable({
-    Key? key,
+    super.key,
     this.axisDirection = AxisDirection.down,
     this.controller,
     this.physics,
@@ -55,8 +55,7 @@ class SheetScrollable extends StatefulWidget {
     this.scrollBehavior,
     this.initialExtent,
     this.minInteractionExtent = 0,
-  })  : assert(semanticChildCount == null || semanticChildCount >= 0),
-        super(key: key);
+  }) : assert(semanticChildCount == null || semanticChildCount >= 0);
 
   /// The direction in which this widget scrolls.
   ///
@@ -196,11 +195,11 @@ class SheetScrollable extends StatefulWidget {
 
   /// {@macro flutter.widgets.shadow.scrollBehavior}
   ///
-  /// [SheetBehaviour]s also provide [SheetPhysics]. If an explicit
+  /// [SheetBehavior]s also provide [SheetPhysics]. If an explicit
   /// [ScrollPhysics] is provided in [physics], it will take precedence,
   /// followed by [scrollBehavior], and then the inherited ancestor
-  /// [SheetBehaviour].
-  final SheetBehaviour? scrollBehavior;
+  /// [SheetBehavior].
+  final SheetBehavior? scrollBehavior;
 
   final double? initialExtent;
 
@@ -285,11 +284,10 @@ class SheetScrollable extends StatefulWidget {
 // ScrollableState.build() always rebuilds its _ScrollableScope.
 class _ScrollableScope extends InheritedWidget {
   const _ScrollableScope({
-    Key? key,
     required this.scrollable,
     required this.position,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   final SheetState scrollable;
   final ScrollPosition position;
@@ -328,7 +326,7 @@ class SheetState extends State<SheetScrollable>
   @override
   AxisDirection get axisDirection => widget.axisDirection;
 
-  late SheetBehaviour _configuration;
+  late SheetBehavior _configuration;
   ScrollPhysics? _physics;
   SheetController? _fallbackScrollController;
 
@@ -339,7 +337,7 @@ class SheetState extends State<SheetScrollable>
 
   // Only call this from places that will definitely trigger a rebuild.
   void _updatePosition() {
-    _configuration = widget.scrollBehavior ?? SheetBehaviour();
+    _configuration = widget.scrollBehavior ?? SheetBehavior();
     _physics = _configuration.getScrollPhysics(context);
     if (widget.physics != null) {
       _physics = widget.physics!.applyTo(_physics);
@@ -392,6 +390,8 @@ class SheetState extends State<SheetScrollable>
 
   @override
   void didChangeDependencies() {
+    _devicePixelRatio = MediaQuery.maybeDevicePixelRatioOf(context) ??
+        View.of(context).devicePixelRatio;
     _updatePosition();
     super.didChangeDependencies();
   }
@@ -558,6 +558,10 @@ class SheetState extends State<SheetScrollable>
 
   @override
   TickerProvider get vsync => this;
+
+  @override
+  double get devicePixelRatio => _devicePixelRatio;
+  late double _devicePixelRatio;
 
   @override
   @protected
@@ -766,13 +770,12 @@ class SheetState extends State<SheetScrollable>
 /// scrollable children.
 class _ScrollSemantics extends SingleChildRenderObjectWidget {
   const _ScrollSemantics({
-    Key? key,
+    super.key,
     required this.position,
     required this.allowImplicitScrolling,
     required this.semanticChildCount,
-    Widget? child,
-  })  : assert(semanticChildCount == null || semanticChildCount >= 0),
-        super(key: key, child: child);
+    super.child,
+  })  : assert(semanticChildCount == null || semanticChildCount >= 0);
 
   final ScrollPosition position;
   final bool allowImplicitScrolling;
@@ -863,10 +866,7 @@ class _RenderScrollSemantics extends RenderProxyBox {
       return;
     }
 
-    _innerNode ??= SemanticsNode(showOnScreen: showOnScreen);
-    _innerNode!
-      ..isMergedIntoParent = node.isPartOfNodeMerging
-      ..rect = node.rect;
+    (_innerNode ??= SemanticsNode(showOnScreen: showOnScreen)).rect = node.rect;
 
     int? firstVisibleIndex;
     final List<SemanticsNode> excluded = <SemanticsNode>[_innerNode!];
