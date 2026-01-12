@@ -146,7 +146,7 @@ class ModalSheetRoute<T> extends PageRoute<T> {
     super.settings,
     this.onClosing,
     this.shouldClose,
-  })  : duration = duration ?? _bottomSheetDuration;
+  }) : duration = duration ?? _bottomSheetDuration;
 
   final double? closeProgressThreshold;
   final WidgetWithChildBuilder? containerBuilder;
@@ -258,7 +258,7 @@ Future<T?> showCustomModalBottomSheet<T>({
   Duration? duration,
   RouteSettings? settings,
   double? closeProgressThreshold,
-  VoidCallback? onDismissed,
+  VoidCallback? onClosing,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
@@ -285,7 +285,7 @@ Future<T?> showCustomModalBottomSheet<T>({
     duration: duration,
     settings: settings,
     closeProgressThreshold: closeProgressThreshold,
-    onClosing: onDismissed,
+    onClosing: onClosing,
     shouldClose: shouldClose,
   ));
   return result;

@@ -120,7 +120,7 @@ Future<T?> showCupertinoModalBottomSheet<T>({
   BoxShadow? shadow,
   SystemUiOverlayStyle? overlayStyle,
   double? closeProgressThreshold,
-  VoidCallback? onDismissed,
+  VoidCallback? onClosing,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
@@ -159,7 +159,7 @@ Future<T?> showCupertinoModalBottomSheet<T>({
         settings: settings,
         transitionBackgroundColor: transitionBackgroundColor ?? Colors.black,
         overlayStyle: overlayStyle,
-        onClosing: onDismissed,
+        onClosing: onClosing,
         shouldClose: shouldClose),
   );
   return result;

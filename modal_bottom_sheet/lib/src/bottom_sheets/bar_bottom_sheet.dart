@@ -93,7 +93,7 @@ Future<T?> showBarModalBottomSheet<T>({
   RouteSettings? settings,
   SystemUiOverlayStyle? overlayStyle,
   double? closeProgressThreshold,
-  VoidCallback? onDismissed,
+  VoidCallback? onClosing,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
@@ -121,7 +121,7 @@ Future<T?> showBarModalBottomSheet<T>({
     animationCurve: animationCurve,
     duration: duration,
     settings: settings,
-    onClosing: onDismissed,
+    onClosing: onClosing,
     shouldClose: shouldClose,
   ));
   return result;

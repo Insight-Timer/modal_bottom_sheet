@@ -22,7 +22,7 @@ Future<T?> showMaterialModalBottomSheet<T>({
   Duration? duration,
   RouteSettings? settings,
   double? closeProgressThreshold,
-  VoidCallback? onDismissed,
+  VoidCallback? onClosing,
   Future<bool> Function()? shouldClose,
 }) async {
   assert(debugCheckHasMediaQuery(context));
@@ -49,7 +49,7 @@ Future<T?> showMaterialModalBottomSheet<T>({
     animationCurve: animationCurve,
     duration: duration,
     settings: settings,
-    onClosing: onDismissed,
+    onClosing: onClosing,
     shouldClose: shouldClose,
   ));
   return result;
