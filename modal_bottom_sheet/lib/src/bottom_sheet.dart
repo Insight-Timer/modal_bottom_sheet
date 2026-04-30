@@ -16,8 +16,7 @@ const double _minFlingVelocity = 500.0;
 const double _closeProgressThreshold = 0.6;
 const double _willPopThreshold = 0.8;
 
-typedef WidgetWithChildBuilder = Widget Function(
-    BuildContext context, Animation<double> animation, Widget child);
+typedef WidgetWithChildBuilder = Widget Function(BuildContext context, Animation<double> animation, Widget child);
 
 /// A custom bottom sheet.
 ///
@@ -48,10 +47,8 @@ class ModalBottomSheet extends StatefulWidget {
     double? closeProgressThreshold,
     @Deprecated('Use preventPopThreshold instead') double? willPopThreshold,
     double? preventPopThreshold,
-  })  : preventPopThreshold =
-            preventPopThreshold ?? willPopThreshold ?? _willPopThreshold,
-        closeProgressThreshold =
-            closeProgressThreshold ?? _closeProgressThreshold;
+  })  : preventPopThreshold = preventPopThreshold ?? willPopThreshold ?? _willPopThreshold,
+        closeProgressThreshold = closeProgressThreshold ?? _closeProgressThreshold;
 
   /// The closeProgressThreshold parameter
   /// specifies when the bottom sheet will be dismissed when user drags it.
@@ -135,8 +132,7 @@ class ModalBottomSheet extends StatefulWidget {
   }
 }
 
-class ModalBottomSheetState extends State<ModalBottomSheet>
-    with TickerProviderStateMixin {
+class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderStateMixin {
   final GlobalKey _childKey = GlobalKey(debugLabel: 'BottomSheet child');
 
   ScrollController get _scrollController => widget.scrollController;
@@ -149,19 +145,16 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
     return renderBox.size.height;
   }
 
-  bool get _dismissUnderway =>
-      widget.animationController.status == AnimationStatus.reverse;
+  bool get _dismissUnderway => widget.animationController.status == AnimationStatus.reverse;
 
   // Detect if user is dragging.
   // Used on NotificationListener to detect if ScrollNotifications are
   // before or after the user stop dragging
   bool isDragging = false;
 
-  bool get hasReachedWillPopThreshold =>
-      widget.animationController.value < _willPopThreshold;
+  bool get hasReachedWillPopThreshold => widget.animationController.value < _willPopThreshold;
 
-  bool get hasReachedCloseThreshold =>
-      widget.animationController.value < widget.closeProgressThreshold;
+  bool get hasReachedCloseThreshold => widget.animationController.value < widget.closeProgressThreshold;
 
   void _close() {
     isDragging = false;
@@ -169,9 +162,13 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
   }
 
   void _cancelClose() {
-    widget.animationController.forward().then((value) {
-      // When using WillPop, animation doesn't end at 1.
-      // Check more in detail the problem
+    // Stop any in-flight animation so the new forward() isn't interrupted by a
+    // stale ticker from a previous _cancelClose() call (drag-update + drag-end
+    // can both invoke this in quick succession).
+    widget.animationController.stop();
+    widget.animationController.forward().whenComplete(() {
+      // When using WillPop, animation doesn't end at 1 in some race scenarios.
+      // Force it so the sheet doesn't sit half-collapsed.
       if (!widget.animationController.isCompleted) {
         widget.animationController.value = 1;
       }
@@ -209,6 +206,10 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
         return;
       } else {
         _cancelClose();
+        // Bail out — falling through would decrement animationController.value
+        // by `progress` below, immediately undoing the cancel-close animation.
+        // This is what causes the sheet to sit half-collapsed when WillPop blocks.
+        return;
       }
     }
 
@@ -276,9 +277,8 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
     ScrollPosition scrollPosition;
 
     if (_scrollController.positions.length > 1) {
-      scrollPosition = _scrollController.positions.firstWhere(
-          (p) => p.isScrollingNotifier.value,
-          orElse: () => _scrollController.positions.first);
+      scrollPosition = _scrollController.positions
+          .firstWhere((p) => p.isScrollingNotifier.value, orElse: () => _scrollController.positions.first);
     } else {
       scrollPosition = _scrollController.position;
     }
@@ -286,9 +286,7 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
     if (scrollPosition.axis == Axis.horizontal) return;
 
     final isScrollReversed = scrollPosition.axisDirection == AxisDirection.down;
-    final offset = isScrollReversed
-        ? scrollPosition.pixels
-        : scrollPosition.maxScrollExtent - scrollPosition.pixels;
+    final offset = isScrollReversed ? scrollPosition.pixels : scrollPosition.maxScrollExtent - scrollPosition.pixels;
 
     if (offset <= 0) {
       // Clamping Scroll Physics end with a ScrollEndNotification with a DragEndDetail class
@@ -341,8 +339,7 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
   @override
   void initState() {
     animationCurve = _defaultCurve;
-    _bounceDragController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _bounceDragController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     // Todo: Check if we can remove scroll Controller
     super.initState();
