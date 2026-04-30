@@ -16,7 +16,8 @@ const double _minFlingVelocity = 500.0;
 const double _closeProgressThreshold = 0.6;
 const double _willPopThreshold = 0.8;
 
-typedef WidgetWithChildBuilder = Widget Function(BuildContext context, Animation<double> animation, Widget child);
+typedef WidgetWithChildBuilder = Widget Function(
+    BuildContext context, Animation<double> animation, Widget child);
 
 /// A custom bottom sheet.
 ///
@@ -47,8 +48,10 @@ class ModalBottomSheet extends StatefulWidget {
     double? closeProgressThreshold,
     @Deprecated('Use preventPopThreshold instead') double? willPopThreshold,
     double? preventPopThreshold,
-  })  : preventPopThreshold = preventPopThreshold ?? willPopThreshold ?? _willPopThreshold,
-        closeProgressThreshold = closeProgressThreshold ?? _closeProgressThreshold;
+  })  : preventPopThreshold =
+            preventPopThreshold ?? willPopThreshold ?? _willPopThreshold,
+        closeProgressThreshold =
+            closeProgressThreshold ?? _closeProgressThreshold;
 
   /// The closeProgressThreshold parameter
   /// specifies when the bottom sheet will be dismissed when user drags it.
@@ -132,7 +135,8 @@ class ModalBottomSheet extends StatefulWidget {
   }
 }
 
-class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderStateMixin {
+class ModalBottomSheetState extends State<ModalBottomSheet>
+    with TickerProviderStateMixin {
   final GlobalKey _childKey = GlobalKey(debugLabel: 'BottomSheet child');
 
   ScrollController get _scrollController => widget.scrollController;
@@ -145,16 +149,19 @@ class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderS
     return renderBox.size.height;
   }
 
-  bool get _dismissUnderway => widget.animationController.status == AnimationStatus.reverse;
+  bool get _dismissUnderway =>
+      widget.animationController.status == AnimationStatus.reverse;
 
   // Detect if user is dragging.
   // Used on NotificationListener to detect if ScrollNotifications are
   // before or after the user stop dragging
   bool isDragging = false;
 
-  bool get hasReachedWillPopThreshold => widget.animationController.value < _willPopThreshold;
+  bool get hasReachedWillPopThreshold =>
+      widget.animationController.value < _willPopThreshold;
 
-  bool get hasReachedCloseThreshold => widget.animationController.value < widget.closeProgressThreshold;
+  bool get hasReachedCloseThreshold =>
+      widget.animationController.value < widget.closeProgressThreshold;
 
   void _close() {
     isDragging = false;
@@ -277,8 +284,9 @@ class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderS
     ScrollPosition scrollPosition;
 
     if (_scrollController.positions.length > 1) {
-      scrollPosition = _scrollController.positions
-          .firstWhere((p) => p.isScrollingNotifier.value, orElse: () => _scrollController.positions.first);
+      scrollPosition = _scrollController.positions.firstWhere(
+          (p) => p.isScrollingNotifier.value,
+          orElse: () => _scrollController.positions.first);
     } else {
       scrollPosition = _scrollController.position;
     }
@@ -286,7 +294,9 @@ class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderS
     if (scrollPosition.axis == Axis.horizontal) return;
 
     final isScrollReversed = scrollPosition.axisDirection == AxisDirection.down;
-    final offset = isScrollReversed ? scrollPosition.pixels : scrollPosition.maxScrollExtent - scrollPosition.pixels;
+    final offset = isScrollReversed
+        ? scrollPosition.pixels
+        : scrollPosition.maxScrollExtent - scrollPosition.pixels;
 
     if (offset <= 0) {
       // Clamping Scroll Physics end with a ScrollEndNotification with a DragEndDetail class
@@ -339,7 +349,8 @@ class ModalBottomSheetState extends State<ModalBottomSheet> with TickerProviderS
   @override
   void initState() {
     animationCurve = _defaultCurve;
-    _bounceDragController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _bounceDragController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     // Todo: Check if we can remove scroll Controller
     super.initState();
