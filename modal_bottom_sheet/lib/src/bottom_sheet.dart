@@ -169,9 +169,13 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
   }
 
   void _cancelClose() {
-    widget.animationController.forward().then((value) {
-      // When using WillPop, animation doesn't end at 1.
-      // Check more in detail the problem
+    // Stop any in-flight animation so the new forward() isn't interrupted by a
+    // stale ticker from a previous _cancelClose() call (drag-update + drag-end
+    // can both invoke this in quick succession).
+    widget.animationController.stop();
+    widget.animationController.forward().whenComplete(() {
+      // When using WillPop, animation doesn't end at 1 in some race scenarios.
+      // Force it so the sheet doesn't sit half-collapsed.
       if (!widget.animationController.isCompleted) {
         widget.animationController.value = 1;
       }
@@ -209,6 +213,10 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
         return;
       } else {
         _cancelClose();
+        // Bail out — falling through would decrement animationController.value
+        // by `progress` below, immediately undoing the cancel-close animation.
+        // This is what causes the sheet to sit half-collapsed when WillPop blocks.
+        return;
       }
     }
 
