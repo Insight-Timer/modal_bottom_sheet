@@ -40,7 +40,6 @@ class ModalBottomSheet extends StatefulWidget {
     this.containerBuilder,
     this.bounce = true,
     this.shouldClose,
-    this.canDragClose,
     required this.scrollController,
     required this.expanded,
     required this.onClosing,
@@ -94,14 +93,6 @@ class ModalBottomSheet extends StatefulWidget {
   // Notice that if shouldClose is not null, the dialog will go back to the
   // previous position until the function is solved
   final Future<bool> Function()? shouldClose;
-
-  /// Whether a drag may dismiss the sheet right now, answered synchronously so it can be asked on
-  /// every drag frame. Null means always.
-  ///
-  /// [shouldClose] cannot serve this: it is async, so a route that merely *might* block has to
-  /// interrupt the drag to ask. This is for the common case where the answer is already known —
-  /// `PopScope` keeps it on the route, and a sheet should obey it the way `Navigator.maybePop` does.
-  final bool Function()? canDragClose;
 
   /// A builder for the contents of the sheet.
   ///
@@ -169,9 +160,6 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
   bool get hasReachedWillPopThreshold =>
       widget.animationController.value < _willPopThreshold;
 
-  /// Read fresh each time: what the route allows changes while the sheet is open.
-  bool get _isDragCloseBlocked => widget.canDragClose?.call() == false;
-
   bool get hasReachedCloseThreshold =>
       widget.animationController.value < widget.closeProgressThreshold;
 
@@ -217,13 +205,6 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
 
     final progress = primaryDelta / (_childHeight ?? primaryDelta);
 
-    if (_isDragCloseBlocked && hasReachedWillPopThreshold) {
-      // Same bail-out as the shouldClose branch: falling through would decrement the controller by
-      // `progress` and undo the cancel, leaving the sheet half-collapsed.
-      _cancelClose();
-      return;
-    }
-
     if (widget.shouldClose != null && hasReachedWillPopThreshold) {
       _cancelClose();
       final canClose = await shouldClose();
@@ -264,10 +245,6 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
     _bounceDragController.reverse();
 
     Future<void> tryClose() async {
-      if (_isDragCloseBlocked) {
-        _cancelClose();
-        return;
-      }
       if (widget.shouldClose != null) {
         _cancelClose();
         bool canClose = await shouldClose();
