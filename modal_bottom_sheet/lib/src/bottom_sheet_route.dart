@@ -107,6 +107,11 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
                             return willPop != RoutePopDisposition.doNotPop;
                           }
                         : null),
+                // A drag is a dismissal like any other, so it obeys whatever the route would tell
+                // `Navigator.maybePop` — which is how `PopScope` reaches us. The `shouldClose` path
+                // above only ever sees the deprecated `WillPopScope`.
+                canDragClose: () =>
+                    widget.route.popDisposition != RoutePopDisposition.doNotPop,
                 onClosing: () {
                   if (widget.route.isCurrent) {
                     widget.onClosing?.call();

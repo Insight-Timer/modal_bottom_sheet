@@ -202,8 +202,8 @@ class CupertinoModalBottomSheetRoute<T> extends ModalSheetRoute<T> {
     this.transitionBackgroundColor,
     this.topRadius = _kDefaultTopRadius,
     this.previousRouteAnimationCurve,
-    VoidCallback? onClosing,
-    Future<bool> Function()? shouldClose,
+    super.onClosing,
+    super.shouldClose,
     this.overlayStyle,
   });
 
