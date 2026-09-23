@@ -62,6 +62,109 @@ void main() {
       });
     },
   );
+
+  group('releasing a drag', () {
+    Future<void> openSheet(WidgetTester tester, WidgetBuilder builder) async {
+      await _pumpWidget(
+        tester: tester,
+        onPressed: (context) =>
+            showMaterialModalBottomSheet(context: context, builder: builder),
+      );
+      await tester.tap(_textButtonWithText('Press me'));
+      await tester.pumpAndSettle();
+    }
+
+    Future<TestGesture> drag(
+      WidgetTester tester, {
+      required double down,
+      double back = 0,
+    }) async {
+      final TestGesture gesture =
+          await tester.startGesture(tester.getCenter(find.text('Sheet')));
+      int ms = 0;
+      Future<void> move(double dy) async {
+        await gesture.moveBy(Offset(0, dy / 10),
+            timeStamp: Duration(milliseconds: ms += 16));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+
+      for (int i = 0; i < 10; i++) {
+        await move(down);
+      }
+      for (int i = 0; i < 10 && back > 0; i++) {
+        await move(-back);
+      }
+      await gesture.up(timeStamp: Duration(milliseconds: ms += 16));
+      await tester.pumpAndSettle();
+      return gesture;
+    }
+
+    Widget fixedSheet(BuildContext context) =>
+        const SizedBox(height: 400, child: Text('Sheet'));
+
+    Widget scrollingSheet(BuildContext context) => SizedBox(
+          height: 400,
+          child: ListView(
+            controller: ModalScrollController.of(context),
+            children: [
+              const SizedBox(height: 100, child: Text('Sheet')),
+              for (int i = 0; i < 20; i++)
+                SizedBox(height: 100, child: Text('Row $i')),
+            ],
+          ),
+        );
+
+    ScrollPosition listPosition(WidgetTester tester) =>
+        tester.state<ScrollableState>(find.byType(Scrollable)).position;
+
+    for (final (String name, WidgetBuilder builder) in [
+      ('fixed content', fixedSheet),
+      ('scrolling content', scrollingSheet),
+    ]) {
+      testWidgets('over $name past the threshold while moving down closes',
+          (tester) async {
+        await openSheet(tester, builder);
+        await drag(tester, down: 300);
+        expect(find.text('Sheet'), findsNothing);
+      });
+
+      testWidgets(
+          'over $name past the threshold while moving back up stays open',
+          (tester) async {
+        await openSheet(tester, builder);
+        await drag(tester, down: 300, back: 60);
+        expect(find.text('Sheet'), findsOneWidget);
+        expect(tester.getTopLeft(find.text('Sheet')).dy, 200);
+      });
+    }
+
+    testWidgets('lifting a pulled-down sheet does not scroll its content',
+        (tester) async {
+      await openSheet(tester, scrollingSheet);
+      await drag(tester, down: 200, back: 150);
+      expect(tester.getTopLeft(find.text('Sheet')).dy, 200);
+      expect(listPosition(tester).pixels, 0);
+    });
+
+    testWidgets('dragging down inside scrolled content scrolls back first',
+        (tester) async {
+      await openSheet(tester, scrollingSheet);
+      listPosition(tester).jumpTo(300);
+      await tester.pump();
+      final TestGesture gesture =
+          await tester.startGesture(const Offset(400, 400));
+      for (int i = 1; i <= 10; i++) {
+        await gesture.moveBy(const Offset(0, 10),
+            timeStamp: Duration(milliseconds: 100 * i));
+        await tester.pump();
+      }
+      await gesture.up(timeStamp: const Duration(milliseconds: 2000));
+      await tester.pumpAndSettle();
+      expect(listPosition(tester).pixels, lessThan(300));
+      expect(listPosition(tester).pixels, greaterThan(0));
+      expect(find.byType(ListView), findsOneWidget);
+    });
+  });
 }
 
 Future<void> _pumpWidget({

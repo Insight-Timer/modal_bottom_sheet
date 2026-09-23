@@ -53,7 +53,7 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
     }
   }
 
-  ScrollController? _scrollController;
+  SheetScrollController? _scrollController;
 
   @override
   void initState() {
@@ -79,8 +79,7 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     assert(widget.route._animationController != null);
-    final scrollController = PrimaryScrollController.maybeOf(context) ??
-        (_scrollController ??= ScrollController());
+    final scrollController = _scrollController ??= SheetScrollController();
     return ModalScrollController(
       controller: scrollController,
       child: Builder(
