@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/src/utils/scroll_to_top_status_bar.dart';
 
 import 'package:modal_bottom_sheet/src/utils/bottom_sheet_suspended_curve.dart';
+import 'package:modal_bottom_sheet/src/utils/sheet_scroll_controller.dart';
 
 const Curve _decelerateEasing = Cubic(0.0, 0.0, 0.2, 1.0);
 
@@ -136,7 +137,8 @@ class ModalBottomSheet extends StatefulWidget {
 }
 
 class ModalBottomSheetState extends State<ModalBottomSheet>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin
+    implements SheetDragTarget {
   final GlobalKey _childKey = GlobalKey(debugLabel: 'BottomSheet child');
 
   ScrollController get _scrollController => widget.scrollController;
@@ -259,6 +261,9 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
     // If speed is bigger than _minFlingVelocity try to close it
     if (velocity > widget.minFlingVelocity) {
       tryClose();
+    } else if (velocity < 0) {
+      // Letting go while moving back up means the user changed their mind.
+      _cancelClose();
     } else if (hasReachedCloseThreshold) {
       if (widget.animationController.value > 0.0) {
         widget.animationController.fling(velocity: -1.0);
@@ -278,6 +283,8 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
 
   void _handleScrollUpdate(ScrollNotification notification) {
     assert(notification.context != null);
+    // Its scroll positions hand drags to the sheet directly.
+    if (_scrollController is SheetScrollController) return;
     //Check if scrollController is used
     if (!_scrollController.hasClients) return;
 
@@ -347,7 +354,48 @@ class ModalBottomSheetState extends State<ModalBottomSheet>
   Curve get _defaultCurve => widget.animationCurve ?? _decelerateEasing;
 
   @override
+  bool get canDragSheet => widget.enableDrag && !_dismissUnderway;
+
+  @override
+  bool get isSheetDisplaced => widget.animationController.value < 1;
+
+  @override
+  bool get isDraggingSheet => isDragging;
+
+  @override
+  void dragSheet(double delta) => _handleDragUpdate(delta);
+
+  @override
+  void releaseSheet(double velocity) => _handleDragEnd(velocity);
+
+  void _attachScrollController(ScrollController controller) {
+    if (controller is SheetScrollController) controller.sheet = this;
+  }
+
+  void _detachScrollController(ScrollController controller) {
+    if (controller is SheetScrollController && controller.sheet == this) {
+      controller.sheet = null;
+    }
+  }
+
+  @override
+  void didUpdateWidget(ModalBottomSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.scrollController != widget.scrollController) {
+      _detachScrollController(oldWidget.scrollController);
+      _attachScrollController(widget.scrollController);
+    }
+  }
+
+  @override
+  void dispose() {
+    _detachScrollController(widget.scrollController);
+    super.dispose();
+  }
+
+  @override
   void initState() {
+    _attachScrollController(widget.scrollController);
     animationCurve = _defaultCurve;
     _bounceDragController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
